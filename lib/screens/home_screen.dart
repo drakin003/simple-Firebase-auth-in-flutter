@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import '../services/firebase_services.dart';
@@ -40,6 +41,14 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    User? user = FirebaseAuth.instance.currentUser;
+    String? userId;
+    String? userEmail;
+
+    if (user != null) {
+      userId = user.uid;
+      userEmail = user.email;
+    }
     return Scaffold(
         appBar: AppBar(
           title: const Text('Home Screen'),
@@ -57,6 +66,11 @@ class _HomeScreenState extends State<HomeScreen> {
                   "Home Screen",
                   style: TextStyle(fontSize: 32),
                 ),
+                const SizedBox(
+                  height: 20,
+                ),
+                Text("User ID: $userId"),
+                Text("User Email: $userEmail"),
                 const SizedBox(
                   height: 20,
                 ),
