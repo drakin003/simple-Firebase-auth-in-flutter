@@ -14,8 +14,12 @@ class RegisterScreen extends StatefulWidget {
 class _RegisterScreenState extends State<RegisterScreen> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
+  bool _isLoading = false;
 
   Future registeruser() async {
+    setState(() {
+      _isLoading = true;
+    });
     var userEmail = emailController.text;
     var userPassword = passwordController.text;
 
@@ -37,6 +41,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
         ScaffoldMessenger.of(context)
             .showSnackBar(SnackBar(content: Text("Error: $e")));
       }
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
 
@@ -90,10 +98,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       registeruser();
                     },
                     style: ElevatedButton.styleFrom(elevation: 8),
-                    child: const Text(
-                      "Register",
-                      style: TextStyle(fontSize: 22),
-                    )),
+                    child: _isLoading
+                        ? const CircularProgressIndicator.adaptive()
+                        : const Text(
+                            "Register",
+                            style: TextStyle(fontSize: 22),
+                          )),
                 const SizedBox(
                   height: 10,
                 ),

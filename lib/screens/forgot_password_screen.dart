@@ -11,29 +11,38 @@ class ForgotPasswordScreen extends StatefulWidget {
 
 class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   TextEditingController forgotEmailController = TextEditingController();
-  bool isLoading = false;
+  bool _isLoading = false;
 
-  forgotpassword() {
+  forgotpassword() async {
+    setState(() {
+      _isLoading = true;
+    });
     try {
       if (forgotEmailController.text.isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text("Please Enter Email"),
+            content: Text("Please enter a Email"),
           ),
         );
       } else {
-        setState(() {
-          isLoading = true;
-        });
         String userEmail = forgotEmailController.text;
-        FirebaseServices().resetPassword(userEmail);
+        await FirebaseServices().resetPassword(userEmail);
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text("Email Sent Successfully"),
+            ),
+          );
+        }
       }
     } on FirebaseAuthException catch (e) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(e.message.toString())));
+      if (mounted) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(e.message.toString())));
+      }
     } finally {
       setState(() {
-        isLoading = false;
+        _isLoading = false;
       });
     }
   }
@@ -46,29 +55,41 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
         centerTitle: true,
       ),
       body: Center(
-        child: Column(
-          children: [
-            const Text("Forgot Password"),
-            TextField(
-              controller: forgotEmailController,
-              decoration: const InputDecoration(
-                border: OutlineInputBorder(),
-                labelText: 'Email',
+        child: AnimatedContainer(
+          duration: const Duration(seconds: 1),
+          padding: const EdgeInsets.all(8.0),
+          width: 400,
+          height: 350,
+          child: Column(
+            children: [
+              const Text("Forgot Password"),
+              const SizedBox(
+                height: 10,
               ),
-            ),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                elevation: 8,
-                shape: const RoundedRectangleBorder(),
+              TextField(
+                controller: forgotEmailController,
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                  labelText: 'Email',
+                ),
               ),
-              onPressed: () {
-                forgotpassword();
-              },
-              child: isLoading
-                  ? const CircularProgressIndicator.adaptive()
-                  : const Text('Send Email'),
-            )
-          ],
+              const SizedBox(
+                height: 20,
+              ),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  elevation: 8,
+                  shape: const RoundedRectangleBorder(),
+                ),
+                onPressed: () {
+                  forgotpassword();
+                },
+                child: _isLoading
+                    ? const CircularProgressIndicator.adaptive()
+                    : const Text('Send Email'),
+              )
+            ],
+          ),
         ),
       ),
     );

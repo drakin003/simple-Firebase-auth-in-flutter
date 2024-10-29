@@ -1,3 +1,4 @@
+import 'package:app3/screens/forgot_password_screen.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
@@ -15,8 +16,12 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController loginemailController = TextEditingController();
   final TextEditingController loginpasswordController = TextEditingController();
+  bool _isLoading = false;
 
   Future loginuser() async {
+    setState(() {
+      _isLoading = true;
+    });
     var userEmail = loginemailController.text;
     var userPassword = loginpasswordController.text;
 
@@ -33,6 +38,10 @@ class _LoginScreenState extends State<LoginScreen> {
         ScaffoldMessenger.of(context)
             .showSnackBar(SnackBar(content: Text("Error: $e")));
       }
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
 
@@ -47,7 +56,7 @@ class _LoginScreenState extends State<LoginScreen> {
           child: AnimatedContainer(
         padding: const EdgeInsets.all(8.0),
         width: 400,
-        height: 300,
+        height: 350,
         duration: const Duration(seconds: 1),
         child: Column(
           children: [
@@ -77,16 +86,37 @@ class _LoginScreenState extends State<LoginScreen> {
                   border: OutlineInputBorder(),
                 )),
             const SizedBox(
-              height: 20,
+              height: 10,
+            ),
+            Align(
+              alignment: Alignment.centerRight,
+              child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    elevation: 8,
+                    shape: const RoundedRectangleBorder(),
+                  ),
+                  onPressed: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const ForgotPasswordScreen(),
+                        ));
+                  },
+                  child: const Text("Forgot Password")),
+            ),
+            const SizedBox(
+              height: 10,
             ),
             ElevatedButton(
                 onPressed: () {
                   loginuser();
                 },
-                child: const Text(
-                  "login",
-                  style: TextStyle(fontSize: 22),
-                )),
+                child: _isLoading
+                    ? const CircularProgressIndicator.adaptive()
+                    : const Text(
+                        "login",
+                        style: TextStyle(fontSize: 22),
+                      )),
             const SizedBox(
               height: 10,
             ),
